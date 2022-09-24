@@ -1,14 +1,14 @@
-import mtgsdk
 import pandas as pd
 import numpy as np
 from mtgsdk import Card
-
+import pickle
 
 def main():
+
     TP = r'C:\temp\Deck - Gipsy Danger.txt'
     print('input data path')
     dl = get_kingyo_DeckList(TP)
-    df_d=set_ListToPD(dl)
+    df_d=set_ListToPD(dl) #Reformat list
     for index, item in df_d.iterrows():
         manaCost = get_manaCost(item['name'])
         print(item['name'],manaCost)
@@ -21,7 +21,7 @@ def get_kingyo_DeckList(TP):
     return dl
 
 
-def set_ListToPD(dl):
+def set_ListToPD(dl):   #MTG decklist format re-format ['number', 'name']
     dl2 = []
     for l in dl:
         dl2.append(l.split(' ', 1))
@@ -39,5 +39,8 @@ def get_manaCost(c_name):
             return '{0}'
     else:
         return 0
+def get_deck(c_name):
+
+
 if __name__ == "__main__":
     main()
