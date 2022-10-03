@@ -12,11 +12,10 @@ def main():
     TP = r'C:\temp\Deck - Gipsy Danger.txt'
     print('input data path')
     dl = get_kingyo_DeckList(TP)  # get Kingyo format data
-    df_d = set_ListToPD(dl)  # Reformat list
-
-    for index, item in df_d.iterrows():
-        manaCost = get_manaCost(item['name'],cards)
-        print(item['name'], manaCost)
+    df_d = listToPD(dl)  # Reformat list
+    deck = [nameToCardData(item['name'], cards) for index, item in df_d.iterrows()]
+    for card in deck:
+        print('{name} {mana_cost}'.format(name=card.name, mana_cost=card.mana_cost))
 
 
 def get_kingyo_DeckList(TP):
@@ -27,27 +26,26 @@ def get_kingyo_DeckList(TP):
     return dl
 
 
-def set_ListToPD(dl):  # MTG decklist format re-format ['number', 'name']
+def listToPD(dl):  # MTG decklist format re-format ['number', 'name']
     dl2 = []
     for l in dl:
         dl2.append(l.split(' ', 1))
     dfDeck = pd.DataFrame(dl2, columns=['number', 'name'])
-    print('get deck')
     return dfDeck
 
 
-def get_manaCost(c_name,cards):
+def nameToCardData(c_name, cards):
     if c_name:
         for card in cards:
-            if card.name == c_name:
-                if card.mana_cost:
-                    return card.mana_cost
-                else:
-                    return '{0}'
+            if '//' in card.name:
+                sName = card.name.split(' // ')
+                if sName[0] == c_name or sName[1] == c_name:
+                    return card
+            elif card.name == c_name:
+                return card
+        return 'notfound'
     else:
         return 0
-
-
 
 
 if __name__ == "__main__":
