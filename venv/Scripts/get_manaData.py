@@ -13,7 +13,7 @@ def main():
     print('input data path')
     dl = get_kingyo_DeckList(TP)  # get Kingyo format data
     df_d = listToPD(dl)  # Reformat list
-    deck = [nameToCardData(item['name'], cards) for index, item in df_d.iterrows()]
+    deck = [nameToCardData(item['name'], cards) for index, item in df_d.iterrows()] #Get deck card data
     for card in deck:
         print('{name} {mana_cost}'.format(name=card.name, mana_cost=card.mana_cost))
 
@@ -37,13 +37,13 @@ def listToPD(dl):  # MTG decklist format re-format ['number', 'name']
 def nameToCardData(c_name, cards):
     if c_name:
         for card in cards:
-            if '//' in card.name:
+            if '//' in card.name:  # Processing double-faced cards
                 sName = card.name.split(' // ')
                 if sName[0] == c_name or sName[1] == c_name:
                     return card
-            elif card.name == c_name:
+            elif card.name == c_name:  # Processing one-faced cards
                 return card
-        return 'notfound'
+        return 'not found'
     else:
         return 0
 
