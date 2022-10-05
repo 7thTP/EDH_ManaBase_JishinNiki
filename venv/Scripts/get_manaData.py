@@ -18,8 +18,8 @@ def main():
     for card in deck:
         print(card.name)
         df_mana.loc[card.name] = 0
-        df_mana.iat[card.name, 'number'] = df_d.at[card.name, 'number']
-        if ' ' in card.mana_cost :
+        df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == card.name].tolist()[0],'number']
+        if ' ' in card.mana_cost:
             mc_buf = card.mana_cost.split(' ')
             # いったんSpritはあとで
         else:
@@ -28,7 +28,7 @@ def main():
                 df_mana.at[card.name, mana] = 1
             else:
                 df_mana[mana] = 0
-                df_mana.iat[card.name, mana] = 1
+                df_mana.at[card.name, mana] = 1
 
 
 def get_kingyo_DeckList(TP):
