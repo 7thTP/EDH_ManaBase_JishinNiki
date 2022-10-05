@@ -14,20 +14,21 @@ def main():
     dl = get_kingyo_DeckList(TP)  # get Kingyo format data
     df_d = listToPD(dl)  # Reformat list
     deck = [nameToCardData(item['name'], cards) for index, item in df_d.iterrows()]  # Get deck card data
-    df_mana = pd.DataFrame()
+    df_mana = pd.DataFrame(index=[], columns=['number'])
     for card in deck:
+        print(card.name)
         df_mana.loc[card.name] = 0
-        if card.mana_cost in ' ':
+        df_mana.iat[card.name, 'number'] = df_d.at[card.name, 'number']
+        if ' ' in card.mana_cost :
             mc_buf = card.mana_cost.split(' ')
-            #いったんSpritはあとで
+            # いったんSpritはあとで
         else:
             mana = card.mana_cost.replace('{', '').replace('}', '')
-            if df_mana.columns.values in mana: #既にある場合
-                df_mana.at[card.name,mana] = 1
-            else:
-                df_mana[mana]=0
+            if mana in df_mana.columns.values:  # 既にある場合
                 df_mana.at[card.name, mana] = 1
-
+            else:
+                df_mana[mana] = 0
+                df_mana.iat[card.name, mana] = 1
 
 
 def get_kingyo_DeckList(TP):
@@ -58,9 +59,6 @@ def nameToCardData(c_name, cards):
         return 'not found'
     else:
         return 0
-
-
-def manaAnalyze(mana_cost):
 
 
 if __name__ == "__main__":
