@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from mtgsdk import Card
 import pickle
+import re
 
 
 def main():
@@ -18,18 +19,19 @@ def main():
     for card in deck:
         print(card.name)
         df_mana.loc[card.name] = 0
-        df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == card.name].tolist()[0],'number']
-        if ' ' in card.mana_cost:
-            mc_buf = card.mana_cost.split(' ')
-            # いったんSpritはあとで
+        if '//' in card.name:  # Trap double-faced cards
+            dfc = splitDoubleFaceCard(card.name)
+            df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == dfc[0]].tolist()[0], 'number']
         else:
-            mana = card.mana_cost.replace('{', '').replace('}', '')
-            if mana in df_mana.columns.values:  # 既にある場合
-                df_mana.at[card.name, mana] = 1
-            else:
-                df_mana[mana] = 0
-                df_mana.at[card.name, mana] = 1
-
+            df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == card.name].tolist()[0],'number']
+        if card.mana_cost:
+            for mana in manaSplit(card.mana_cost):
+                if mana in df_mana.columns.values:  # 既にある場合
+                    df_mana.at[card.name, mana] += 1
+                else:
+                    df_mana[mana] = 0
+                    df_mana.at[card.name, mana] += 1
+    print(df_mana)
 
 def get_kingyo_DeckList(TP):
     dl = []
@@ -51,8 +53,8 @@ def nameToCardData(c_name, cards):
     if c_name:
         for card in cards:
             if '//' in card.name:  # Processing double-faced cards
-                sName = card.name.split(' // ')
-                if sName[0] == c_name or sName[1] == c_name:
+                dfc = splitDoubleFaceCard(card.name)
+                if c_name in dfc:
                     return card
             elif card.name == c_name:  # Processing one-faced cards
                 return card
@@ -60,6 +62,21 @@ def nameToCardData(c_name, cards):
     else:
         return 0
 
+def manaSplit(manaCost):
+    op = []
+    gm = 0
+    manas = re.findall("(?<=\{).+?(?=\})", manaCost)
+    for mana in manas:
+        if mana.isdigit() :
+            gm = int(mana)
+        else:
+            op.append(mana)
+    if gm:
+        op[0:0] = ['GM']*gm
+    return op
+
+def splitDoubleFaceCard(name):
+    return name.split(' // ')
 
 if __name__ == "__main__":
     main()
