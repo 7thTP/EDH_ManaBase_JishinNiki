@@ -17,13 +17,12 @@ def main():
     deck = [nameToCardData(item['name'], cards) for index, item in df_d.iterrows()]  # Get deck card data
     df_mana = pd.DataFrame(index=[], columns=['number'])
     for card in deck:
-        print(card.name)
         df_mana.loc[card.name] = 0
         if '//' in card.name:  # Trap double-faced cards
             dfc = splitDoubleFaceCard(card.name)
             df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == dfc[0]].tolist()[0], 'number']
         else:
-            df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == card.name].tolist()[0],'number']
+            df_mana.at[card.name, 'number'] = df_d.at[df_d.index[df_d['name'] == card.name].tolist()[0], 'number']
         if card.mana_cost:
             for mana in manaSplit(card.mana_cost):
                 if mana in df_mana.columns.values:  # 既にある場合
@@ -32,6 +31,14 @@ def main():
                     df_mana[mana] = 0
                     df_mana.at[card.name, mana] += 1
     print(df_mana)
+    printSumMana(df_mana)
+
+
+def printSumMana(df):
+    for cl in df.columns[1:]:
+        print('{}: {}'.format(cl, df[cl].sum()))
+    return
+
 
 def get_kingyo_DeckList(TP):
     dl = []
@@ -62,21 +69,24 @@ def nameToCardData(c_name, cards):
     else:
         return 0
 
+
 def manaSplit(manaCost):
     op = []
     gm = 0
     manas = re.findall("(?<=\{).+?(?=\})", manaCost)
     for mana in manas:
-        if mana.isdigit() :
+        if mana.isdigit():
             gm = int(mana)
         else:
             op.append(mana)
     if gm:
-        op[0:0] = ['GM']*gm
+        op[0:0] = ['GM'] * gm
     return op
+
 
 def splitDoubleFaceCard(name):
     return name.split(' // ')
+
 
 if __name__ == "__main__":
     main()
